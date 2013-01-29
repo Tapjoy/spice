@@ -21,30 +21,32 @@ module Spice
         options.delete_if{|k,v| !%w(q sort start rows).include?(k.to_s)}
 
         params = options.collect{ |k, v| "#{k}=#{CGI::escape(v.to_s)}"}.join("&")
+        # chef sometimes returns null elements in returned json.
+        # get_or_new returns nil in these cases so compact the map to remove them
         case index
         when 'node'
           get("/search/#{CGI::escape(index.to_s)}?#{params}")['rows'].map do |node|
             Spice::Node.get_or_new(node)
-          end
+          end.compact
         when 'role'
           get("/search/#{CGI::escape(index.to_s)}?#{params}")['rows'].map do |role|
             Spice::Role.get_or_new(role)
-          end
+          end.compact
         when 'client'
           get("/search/#{CGI::escape(index.to_s)}?#{params}")['rows'].map do |client|
             Spice::Client.get_or_new(client)
-          end
+          end.compact
         when 'environment'
           get("/search/#{CGI::escape(index.to_s)}?#{params}")['rows'].map do |env|
             env['attrs'] = env.delete('attributes')
             Spice::Environment.get_or_new(env)
-          end
+          end.compact
         else
           # assume it's a data bag
           get("/search/#{CGI::escape(index.to_s)}?#{params}")['rows'].map do |db|
             data = db['raw_data']
             Spice::DataBagItem.get_or_new(data)
-          end
+          end.compact
         end
       end # def search
       
