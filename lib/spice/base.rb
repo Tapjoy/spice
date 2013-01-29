@@ -43,7 +43,12 @@ module Spice
 
     # Retrieve an object from the identity map or initialize a new object
     def self.get_or_new(attrs=Mash.new)
-      self.get(attrs) || self.new(attrs)
+      if attrs.nil?
+        # chef sometimes returns null elements in returned json. Don't barf on them
+        nil
+      else
+        self.get(attrs) || self.new(attrs)
+      end
     end # def self.get_or_new
 
     # Initializes a new object

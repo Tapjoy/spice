@@ -24,7 +24,13 @@ describe Spice::Base do
       base.to_hash['id'].should == 1
     end
   end
-  
+
+  describe ".get_or_new" do
+    it "should return nil when passed nil attributes" do
+      Spice::Base.get_or_new(nil).should be nil
+    end
+  end
+
   describe "identical objects" do
     it "should have the same object_id" do
       base.object_id.should == Spice::Base.get('id' => 1).object_id
